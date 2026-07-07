@@ -1,0 +1,234 @@
+/* ==========================================================
+   めたっぴの冒険の書 — SFC RPG風ポートフォリオ
+   カスタマイズしたいときは、まずページ下部の DATA 部分を編集!
+   ========================================================== */
+:root{
+  --bg:#04040f;
+  --win-top:#1a1aa8;      /* ウィンドウ グラデ上 */
+  --win-bottom:#000040;   /* ウィンドウ グラデ下 */
+  --frame:#f8f8f8;        /* ウィンドウ枠 */
+  --ink:#f8f8f8;          /* 基本文字色 */
+  --gold:#ffd75e;         /* 選択・強調 */
+  --shadow:#9aa4ff;       /* 淡い文字 */
+  --hp:#4ade80;           /* ゲージ緑 */
+  --hp-dark:#166534;
+  --mp:#67e8f9;           /* ゲージ水色 */
+  --danger:#ff6b6b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'DotGothic16', 'MS Gothic', monospace;
+  line-height:1.9;
+  letter-spacing:.04em;
+  min-height:100vh;
+  position:relative;
+  overflow-x:hidden;
+}
+/* うっすら星空 */
+body::before{
+  content:"";
+  position:fixed;inset:0;z-index:-2;
+  background:
+    radial-gradient(1px 1px at 20% 30%, #ffffff88 50%, transparent 51%),
+    radial-gradient(1px 1px at 70% 15%, #ffffff66 50%, transparent 51%),
+    radial-gradient(1px 1px at 40% 75%, #ffffff55 50%, transparent 51%),
+    radial-gradient(1px 1px at 85% 60%, #ffffff77 50%, transparent 51%),
+    radial-gradient(1px 1px at 10% 85%, #ffffff44 50%, transparent 51%),
+    radial-gradient(2px 2px at 55% 45%, #ffffff33 50%, transparent 51%),
+    var(--bg);
+}
+/* CRT風スキャンライン(シグネチャ演出) */
+body::after{
+  content:"";
+  position:fixed;inset:0;z-index:50;pointer-events:none;
+  background:repeating-linear-gradient(0deg, transparent 0 2px, rgba(0,0,0,.14) 2px 4px);
+}
+.wrap{max-width:900px;margin:0 auto;padding:24px 14px 80px}
+
+/* ---------- RPGウィンドウ ---------- */
+.rpg-win{
+  background:linear-gradient(180deg, var(--win-top), var(--win-bottom));
+  border:3px solid var(--frame);
+  border-radius:10px;
+  box-shadow:0 0 0 3px #000, inset 0 0 0 2px #000, 0 6px 0 rgba(0,0,0,.5);
+  padding:18px 20px;
+  margin-bottom:22px;
+}
+.rpg-win h2{
+  font-size:1.1rem;color:var(--gold);
+  border-bottom:2px dotted var(--shadow);
+  padding-bottom:6px;margin-bottom:12px;
+  text-shadow:2px 2px 0 #000;
+}
+h1,h2,h3{font-weight:normal}
+a{color:var(--mp);text-decoration:none;border-bottom:1px dotted var(--mp)}
+a:hover{color:var(--gold);border-color:var(--gold)}
+a:focus-visible,button:focus-visible,textarea:focus-visible{
+  outline:3px solid var(--gold);outline-offset:2px;
+}
+
+/* ---------- タイトル画面 ---------- */
+#title-screen{min-height:82vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center}
+.game-title{
+  font-size:clamp(1.6rem, 6vw, 3rem);
+  color:var(--gold);
+  text-shadow:3px 3px 0 #7a1f1f, 6px 6px 0 #000;
+  margin-bottom:8px;
+}
+.game-sub{color:var(--shadow);font-size:.85rem;margin-bottom:36px;text-shadow:2px 2px 0 #000}
+.title-menu{list-style:none;display:inline-block;text-align:left}
+.title-menu li{margin:2px 0}
+.title-menu button{
+  font-family:inherit;font-size:1.05rem;color:var(--ink);
+  background:none;border:none;cursor:pointer;
+  padding:6px 14px 6px 38px;position:relative;letter-spacing:.06em;
+  line-height:1.6;
+}
+.title-menu button::before{
+  content:"▶";position:absolute;left:8px;color:var(--gold);
+  opacity:0;
+}
+.title-menu li.selected button{color:var(--gold)}
+.title-menu li.selected button::before{opacity:1;animation:blink 1s steps(2) infinite}
+@keyframes blink{50%{opacity:0}}
+@media (prefers-reduced-motion: reduce){
+  .title-menu li.selected button::before{animation:none;opacity:1}
+  *{transition:none!important}
+}
+.press-hint{margin-top:34px;color:var(--shadow);font-size:.75rem;animation:blink 1.6s steps(2) infinite}
+
+/* ---------- セクション共通 ---------- */
+.scene{display:none}
+.scene.active{display:block;animation:fadein .25s steps(4)}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.scene-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px}
+.scene-head h1{font-size:1.25rem;color:var(--gold);text-shadow:2px 2px 0 #000}
+.btn{
+  font-family:inherit;font-size:.9rem;color:var(--ink);cursor:pointer;
+  background:linear-gradient(180deg, var(--win-top), var(--win-bottom));
+  border:2px solid var(--frame);border-radius:8px;
+  box-shadow:0 0 0 2px #000, 0 3px 0 rgba(0,0,0,.6);
+  padding:6px 14px;line-height:1.6;
+}
+.btn:hover{color:var(--gold)}
+.btn:active{transform:translateY(2px);box-shadow:0 0 0 2px #000}
+.btn.gold{color:var(--gold)}
+
+/* ---------- メッセージウィンドウ(タイプライター) ---------- */
+.msg-win{min-height:5.5em;font-size:.95rem}
+.msg-win .cursor-down{color:var(--gold);animation:blink 1s steps(2) infinite}
+
+/* ---------- クエスト(アプリ) ---------- */
+.quest-card{margin-bottom:18px}
+.quest-card .q-title{color:var(--gold);font-size:1.05rem;text-shadow:2px 2px 0 #000}
+.quest-card .q-rank{font-size:.75rem;color:var(--shadow);margin-left:8px}
+.quest-card .q-desc{font-size:.9rem;margin:8px 0}
+.q-shot{
+  border:2px dashed var(--shadow);border-radius:6px;
+  padding:14px;text-align:center;color:var(--shadow);font-size:.75rem;
+  margin:10px 0;
+}
+.q-shot img{max-width:100%;border-radius:4px;image-rendering:auto}
+.q-tech{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.q-tech span{
+  font-size:.72rem;border:1px solid var(--shadow);border-radius:4px;
+  padding:1px 8px;color:var(--shadow);
+}
+.q-links{display:flex;gap:14px;flex-wrap:wrap;font-size:.85rem}
+.badge-clear{
+  display:inline-block;font-size:.7rem;color:#000;background:var(--hp);
+  border-radius:4px;padding:0 8px;margin-left:8px;vertical-align:middle;
+}
+
+/* ---------- そうび(スタック) ---------- */
+.stack-row{display:grid;grid-template-columns:120px 1fr 64px;gap:10px;align-items:center;margin:10px 0;font-size:.9rem}
+.stack-row .s-name{color:var(--ink)}
+.stack-row .s-role{grid-column:1 / -1;font-size:.72rem;color:var(--shadow);margin-top:-8px}
+.gauge{
+  height:14px;border:2px solid var(--frame);border-radius:4px;
+  background:var(--hp-dark);overflow:hidden;box-shadow:0 0 0 1px #000;
+}
+.gauge i{
+  display:block;height:100%;
+  background:linear-gradient(180deg,#a7f3d0 15%, var(--hp) 40%, #15803d);
+  width:0;transition:width .8s steps(12);
+}
+.stack-row .s-lv{color:var(--gold);text-align:right;font-size:.8rem}
+
+/* ---------- 修行の間 ---------- */
+.status-bar{
+  display:flex;gap:18px;flex-wrap:wrap;align-items:center;
+  font-size:.85rem;margin-bottom:14px;
+}
+.status-bar .xp{color:var(--gold)}
+.tq-list{display:grid;gap:8px;margin-bottom:16px}
+.tq-item{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  font-family:inherit;text-align:left;cursor:pointer;color:var(--ink);
+  background:rgba(0,0,0,.35);border:2px solid var(--shadow);border-radius:6px;
+  padding:8px 12px;font-size:.85rem;line-height:1.6;
+}
+.tq-item:hover{border-color:var(--gold);color:var(--gold)}
+.tq-item .tq-lv{font-size:.7rem;color:var(--shadow)}
+.tq-item.done{border-color:var(--hp)}
+.tq-item.done::after{content:"クリア!";font-size:.7rem;color:var(--hp)}
+.editor-panel{display:none}
+.editor-panel.open{display:block}
+.code-area{
+  width:100%;min-height:180px;resize:vertical;
+  font-family:'DotGothic16', monospace;font-size:.9rem;line-height:1.7;
+  color:#d7fcd7;background:#020a02;
+  border:2px solid var(--frame);border-radius:6px;
+  box-shadow:inset 0 0 0 2px #000;
+  padding:12px;margin:10px 0;
+  tab-size:2;
+}
+.battle-log{
+  background:rgba(0,0,0,.5);border:2px solid var(--shadow);border-radius:6px;
+  padding:10px 12px;font-size:.82rem;min-height:3.4em;margin-top:10px;
+  white-space:pre-wrap;
+}
+.battle-log .ok{color:var(--hp)}
+.battle-log .ng{color:var(--danger)}
+.battle-log .gain{color:var(--gold)}
+.editor-btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.answer-box{
+  display:none;background:#0a0a2e;border:2px dashed var(--gold);border-radius:6px;
+  padding:10px 12px;font-size:.85rem;white-space:pre-wrap;margin-top:10px;
+  font-family:inherit;color:#ffeebb;
+}
+.answer-box.open{display:block}
+
+/* ---------- つうしんの間 ---------- */
+.link-list{list-style:none;font-size:.95rem}
+.link-list li{margin:10px 0;padding-left:26px;position:relative}
+.link-list li::before{content:"▶";position:absolute;left:0;color:var(--gold);font-size:.8rem}
+.link-list .l-note{display:block;font-size:.72rem;color:var(--shadow)}
+
+/* ---------- プロフィール ---------- */
+.profile-face{
+  width:84px;height:84px;border:2px solid var(--frame);border-radius:6px;
+  background:#111;overflow:hidden;flex:none;box-shadow:0 0 0 2px #000;
+}
+.profile-face img{width:100%;height:100%;object-fit:cover;display:block}
+.profile-top{display:flex;gap:16px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.profile-top .p-name{font-size:1.15rem;color:var(--gold);text-shadow:2px 2px 0 #000}
+.profile-top .p-job{font-size:.78rem;color:var(--shadow)}
+.story p{font-size:.92rem;margin-bottom:1em}
+.chapter{border-left:3px solid var(--shadow);padding-left:14px;margin:18px 0}
+.chapter.now{border-left-color:var(--gold)}
+.chapter .ch-label{font-size:.72rem;color:var(--gold);letter-spacing:.12em;margin-bottom:0}
+.chapter .ch-title{font-size:1rem;margin:2px 0 6px;text-shadow:2px 2px 0 #000}
+.chapter p:last-child{margin-bottom:0;font-size:.88rem}
+
+footer{
+  text-align:center;color:var(--shadow);font-size:.7rem;margin-top:40px;
+}
+
+@media (max-width:560px){
+  .stack-row{grid-template-columns:92px 1fr 52px}
+  .rpg-win{padding:14px}
+}
